@@ -1,0 +1,249 @@
+  <!--{template top_two}-->
+
+ <script src="http://admin.zhengpin.com/bootadmin/vendor/jquery/jquery.min.js"></script>
+   <div class="ge">
+       
+       
+       
+       <!--{template left_two}-->
+       
+        <div class="g-right">
+             <div class="ge5">
+                  <a href="index.php?do=personal_two&one=1">基本资料</a>
+                  <a class="ge6"  href="index.php?do=personal_two_zj&one=1">专家主页</a>
+                  <a href="index.php?do=personal_two_yh&one=1">引荐用户</a>
+             </div>
+
+         
+              
+            <form action="index.php?do=personal_two_zj&one=126" method="post" id="haa_nj"  enctype="multipart/form-data">
+             <div class="tou">
+                  <div class="tou2">
+                       <div id="preview">
+                        <img id="imghead" border=0 {if $zj_data[0]['img_url'] == ''}src="$one_two_three/images/tou.jpg"{elseif $zj_data[0]['img_url'] != ''}src="{$zj_data[0]['img_url']}"{/if} />
+                      </div>
+                      <input class="fi" type="file" name="file_one" value="{$zj_data[0]['img_url']}" onchange="previewImage(this)" />
+                  </div>
+
+                 <div class="tou3">
+                      <div class="to">
+                           <span><img src="$one_two_three/images/xx.png">  姓名 ： </span> <p> {$user_info['truename']} </p>  <span>性别 ：</span> <p>{$user_info['sex']}</p>
+                      </div>
+
+                      <div class="to">
+                          <span><img src="$one_two_three/images/xx.png"> 所属单位 ：     </span> <input id="data1" type="text" name="is_dw" value="{$zj_data[0]['is_dw']}">
+                      </div>
+
+                       <div class="to">
+                           <span><img src="$one_two_three/images/xx.png"> 所在地 ：     </span> 
+                           <div class="fa6  to2">
+                              <select name='is_district' id="data2">
+                                  <option value ="volvo">请选择</option>
+                                 
+                                  {loop $districet $k $v}
+                                    <option value ="{$v['id']}" {if $zj_data[0]['is_district'] == $v['id']}selected{/if}>{$v['name']}</option>
+                                  {/loop}
+                            </select>
+                              
+                         </div>
+
+                      </div>
+
+                       <div class="to3">
+                           <span><img src="$one_two_three/images/xx.png"> 科技领域 ：     </span> 
+                           <div class="fa5 to2" id="klop">
+<!--                                <p><input type="checkbox" {if $zj_data[0]['is_industry'] == 371}checked{/if} name="is_industry" value="371" />机械电子</p> 
+                                <p><input type="checkbox" {if $zj_data[0]['is_industry'] == 372}checked{/if} name="is_industry" value="372" />材料科技</p>
+                                <p><input type="checkbox" {if $zj_data[0]['is_industry'] == 373}checked{/if} name="is_industry" value="373" />化学化工</p>    
+                                <p><input type="checkbox" {if $zj_data[0]['is_industry'] == 374}checked{/if} name="is_industry" value="374" />能源电力</p>    
+                                <p><input type="checkbox" {if $zj_data[0]['is_industry'] == 0}checked{/if} name="is_industry" value="0" />其他</p>    -->
+                                <p><input type="checkbox"   name="is_industry" value="371" />机械电子</p> 
+                                <p><input type="checkbox"   name="is_industry" value="372" />材料科技</p>
+                                <p><input type="checkbox"   name="is_industry" value="373" />化学化工</p>    
+                                <p><input type="checkbox"   name="is_industry"   value="374" />能源电力</p>    
+                                <p><input type="checkbox"   name="is_industry" value="0" />其他</p>    
+                           </div>
+
+                      </div>
+
+
+                       <div class="to">
+                           <span><img src="$one_two_three/images/xx.png"> 科研方向 ：     </span> <input type="text" name="direction" value="{$zj_data[0]['direction']}">
+                      </div>
+
+
+
+                 </div>
+
+             </div>
+             
+
+             <div class="to to4">
+                  <span><img src="$one_two_three/images/xx.png"> 科技关键词 ：     </span> <input type="text" name="k_word" value="{$zj_data[0]['k_word']}">
+            </div>
+
+            <div class="to to4">
+                  <span><img src="$one_two_three/images/xx.png"> 所属团队：     </span>  北京以科技
+            </div>
+
+
+             <div class="to to4 to5">
+                  <span><img src="$one_two_three/images/xx.png"> 科研兴趣：     </span>  <textarea name="interest">{$zj_data[0]['interest']}</textarea>
+            </div>
+
+             <div class="to to4 to5">
+                  <span><img src="$one_two_three/images/xx.png"> 教学工作：     </span>  <textarea name="word">{$zj_data[0]['word']}</textarea>
+            </div>
+
+
+             <div class="to to4 to5">
+                  <span><img src="$one_two_three/images/xx.png"> 科技奖励：     </span>  <textarea name="award">{$zj_data[0]['award']}</textarea>
+            </div>
+
+             <div class="to to4 to5">
+                  <span><img src="$one_two_three/images/xx.png"> 科研成果：     </span>  <textarea name="result">{$zj_data[0]['result']}</textarea>
+            </div>
+
+             <div class="to3 to6">
+                  <span><img src="$one_two_three/images/xx.png"> 平台成果 ：   </span> 
+                  <input type="radio" {if $zj_data[0]['result_is'] == 1}checked{/if} name="result_is" value="1"> 公开
+                  <input type="radio" {if $zj_data[0]['result_is'] == 0}checked{/if} name="result_is" value="0"> 保密
+            </div>
+
+            <div class="to7">
+                 1.CO2发电系统，工艺，100万，已完成 <br>
+                 2.机加工方法，方案，20万，正在进行
+            </div>
+
+
+            <div class="dt6 to8">
+                <input type="submit" name="result_is"  onclick="return pop();" value="提交">
+<!--                <a href="javascript:void(0)" onclick="pop()">保存信息</a>-->
+                  <a href="">取消</a>
+            </div>
+</form>
+          
+            
+
+
+        </div>
+   </div>
+   
+   <div class="jjh"></div>
+ 
+
+  
+
+<script type="text/javascript">
+    function pop(){
+//        var ssdw=$("#ssdw").val();
+//        var ssdw=$("#klop input").val();
+//        $("#haa_nj").submit();
+        boo= $("input[type='checkbox']").is(':checked');
+        if(! boo){
+            alert("点你妈比")
+        }
+        console.log(boo)
+        return boo;
+    }
+    
+
+
+      //图片上传预览    IE是用了滤镜。
+        function previewImage(file)
+        {
+          var MAXWIDTH  = 260; 
+          var MAXHEIGHT = 180;
+          var div = document.getElementById('preview');
+          if (file.files && file.files[0])
+          {
+              div.innerHTML ='<img id=imghead>';
+              var img = document.getElementById('imghead');
+              img.onload = function(){
+                var rect = clacImgZoomParam(MAXWIDTH, MAXHEIGHT, img.offsetWidth, img.offsetHeight);
+                img.width  =  rect.width;
+                img.height =  rect.height;
+//                 img.style.marginLeft = rect.left+'px';
+                img.style.marginTop = rect.top+'px';
+              }
+              var reader = new FileReader();
+              reader.onload = function(evt){img.src = evt.target.result;}
+              reader.readAsDataURL(file.files[0]);
+          }
+          else //兼容IE
+          {
+            var sFilter='filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src="';
+            file.select();
+            var src = document.selection.createRange().text;
+            div.innerHTML = '<img id=imghead>';
+            var img = document.getElementById('imghead');
+            img.filters.item('DXImageTransform.Microsoft.AlphaImageLoader').src = src;
+            var rect = clacImgZoomParam(MAXWIDTH, MAXHEIGHT, img.offsetWidth, img.offsetHeight);
+            status =('rect:'+rect.top+','+rect.left+','+rect.width+','+rect.height);
+            div.innerHTML = "<div id=divhead style='width:"+rect.width+"px;height:"+rect.height+"px;margin-top:"+rect.top+"px;"+sFilter+src+"\"'></div>";
+          }
+        }
+        function clacImgZoomParam( maxWidth, maxHeight, width, height ){
+            var param = {top:0, left:0, width:width, height:height};
+            if( width>maxWidth || height>maxHeight )
+            {
+                rateWidth = width / maxWidth;
+                rateHeight = height / maxHeight;
+                
+                if( rateWidth > rateHeight )
+                {
+                    param.width =  maxWidth;
+                    param.height = Math.round(height / rateWidth);
+                }else
+                {
+                    param.width = Math.round(width / rateHeight);
+                    param.height = maxHeight;
+                }
+            }
+            
+            param.left = Math.round((maxWidth - param.width) / 2);
+            param.top = Math.round((maxHeight - param.height) / 2);
+            return param;
+        }
+</script>   
+
+<script type="text/javascript">
+    
+    
+    
+        $(function(){
+            $(".st").click(function(){
+                  $(".dtt").show();
+                  $(".jjh").show();
+            })
+
+            $(".dt2 img").click(function(){
+                  $(".dtt").hide();
+                  $(".jjh").hide();
+            })
+
+            $(".st2").click(function(){
+                  $(".dtt2").show();
+                  $(".jjh").show();
+            })
+
+            $(".dt2 img").click(function(){
+                  $(".dtt2").hide();
+                  $(".jjh").hide();
+            })
+
+             $(".st3").click(function(){
+                  $(".dtt3").show();
+                  $(".jjh").show();
+            })
+
+            $(".dt2 img").click(function(){
+                  $(".dtt3").hide();
+                  $(".jjh").hide();
+            })
+
+
+
+        })
+</script>
+ <!--{template bottom_two}-->

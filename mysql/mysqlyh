@@ -1,0 +1,113 @@
+数据库优化：
+
+慢查询
+
+mysql> show variables like 'slow_query_log'   查看慢查询日志是否开启
++----------------+-------+
+| Variable_name  | Value |
++----------------+-------+
+| slow_query_log | OFF   | 
++----------------+-------+
+1 row in set (0.03 sec)
+mysql> show variables like '%char%';#查看编码
+mysql> show variables like '%log%';
+mysql> set global log_queries_not_using_indexes=on;  //是否记录没有使用索引的sql语句，On为是
+mysql> set global slow_query_log=on;  //开启慢查询
+mysql> set global long_query_time=1;  //设置记录超过多少秒的sql语句
+mysql> set global slow_query_log_file='' //设置慢查询日志文件位置，可以不设置。使用默认的
+mysql> show variables like 'slow%'; 日志地址
++---------------------+----------------------------------------------------+
+| Variable_name       | Value                                              |
++---------------------+----------------------------------------------------+
+| slow_launch_time    | 2                                                  |
+| slow_query_log      | On                                              |
+| slow_query_log_file | c:\wamp\bin\mysql\mysql5.6.17\data\Tan-PC-slow.log |
+
+
+使用mysqldumpslow慢查询分析http://blog.sina.com.cn/s/blog_8d4a23fe0102vkmj.html用法
+使用pt-query-digest工具慢查询分析 http://blog.csdn.net/gzh0222/article/details/9273155建议使用它来慢查询分析
+mysqldumpslow -s al -t 5  /var/run/mysqld/mysqld-slow.log 
+pt-query-digest 依赖 perl-Time-HiRes需要安装， yum install -y perl-Time-HiRes
+mysqldumpslow -h
+[root@root download]#mysqldumpslow -s al  /var/run/mysqld/mysqld-slow.log
+
+count 和max优化
+ 
+join优化
+	通常情况将子查询优化成join查询
+	join优化   用 distinct去重复
+group by 优化  
+	将： select * from x left join xx on x.x=xx.x group by id 
+	优化成 select 要用的列名 from x left join (
+		 select id as iid, 要用的列名 from  xx where 条件 group by iid
+		) as c using(iid)
+
+
+================
+limit 优化
+	order by 索引  limit 999,9
+	where id>999 and id <909 order by 9;这个要求数据无空缺（删除）否则取出来的可能会少于9个
+
+=================
+索引优化
+  索引不是越多越好，  
+
+	删除重复（冗余）索引  谨慎删除： 重复索引是指相同的顺序建立同类型的索引
+	查出冗余索引： show create table 表  或者使用 pt-duplicate-key-checker工具，建议使用它
+        
+        索引字段越小越好，因为数据库中数据是以页存储的，字段越小存的越多，这样可以减少IO
+        
+删除不使用的索引：这个得完全确认不使用的索引才能删，。 ：慢查询日志+ 工具 pt-index-usage 找出不用索引
+
+	首先查出要建立联合索引字段的离散度，离散度越大选择性越多，就放在越前
+		查看离散度例子  select count(distinct id) , count(distinct queue) from jobs;
+	查询离散度： select count(distinct 列名1),count(distinct 列名2) from xx;假如列名2大则联合索引该 index  （列名2，列名1）
+	
+        索引维护
+=======================
+表结构优化：
+	1：选择合适的数据类型，【1使用可以存心你的数据最小的数据类型，使用简单的数据类型】
+		固定长度的字符串使用 char	如md5密码  这种使用char
+		固定变长字符串   varchar   如名称最大8个这种就用varchar
+		时间类型使用int类型时要注意，int最大存储值为2的32次方，大概就是最多能存 2038年。而且可读性不好每次还要转换。建议使用 datetime
+		
+		使用bigint类型来存储IP地址，利用inet_aton 和 inet_ntoa 函数来转换
+	2：尽量使用 not null ，尽量少用 text类型，非用不可时考虑分表
+	
+
+=========
+准守范式化
+    范式化要求数据表中不存在非关键字段对任意关键字段有传递函数依赖
+	第一范式： 定义-》数据中的表都是二维表
+	第二范式：定义-》 存在插入、删除、更新、数据冗余时就不符合第二范式
+				如
+			小米    男    27号    33班   数学  90分
+			逗比    女    22号    33班   数学  90分
+			小米    男    27号    33班   语文  20分
+			小米    男    27号    33班   地理  90分  这个表就明显有更新插入删除异常，如小米更名为张三时却要更新很多。。
+								 假如某天要删除所有学生成绩时就会删除整个表。。这是删除异常。。
+				拆分为：
+					学生表   分类表   成绩表 这样就符合第二范式表
+
+	第三范式：定义-》地三范式是在第二范式基础上定义的，如果数据表中不存在
+	bcnf范式：
+==========
+反范式化
+	允许一定的数据冗余，这样可以减少不必要的join就能得到想要的数据 减少一些不必要io，这个度需要自己把握
+		反范式化就是以空间换取速度
+
+
+=========
+表垂直拆分：-》针对一个有很多列的表拆分成多个表   
+	拆分原则：
+		1将不常用单独放一个表
+		2把字段大的放一个表
+		3把经常使用的放一个表
+
+表水平拆分：针对表很大时，如有几十亿条数据。。。
+	拆分方法：
+		建立多个结构相同的表，散列到不同的表。类似缓存时hash一致算法
+
+============
+系统优化：
+	mysql系统优化：

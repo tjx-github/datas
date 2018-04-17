@@ -1,0 +1,5 @@
+https://github.com/spf13/spf13-vim
+
+git1.7以上+vim7.3以上执行这段代码就能安装了
+ curl https://j.mp/spf13-vim3 -L > spf13-vim.sh && sh spf13-vim.sh
+

@@ -1,0 +1,18 @@
+第一步，
+	先删除系统已有的
+	rpm -qa|grep mariadb
+	rpm -qa|grep mysql
+		删除所有被搜出来的   rpm -e --nodeps  mariadb-libs-5.5.52-1.el7.x86_64
+第二部，安装mysql-community-server-5.7.18-1.el7.x86_64.rpm
+	rpm -ivh mysql-community-server-5.7.18-1.el7.x86_64.rpm
+	 报mysql-community-server-5.7.18-1.el7.x86_64.rpm依赖某某就去下载安装   
+3所有安装好后。启动
+	service mysqld start
+	
+
+4	非安全模式
+	vi /etc/my.cnf 
+		在[mysqld]的段中加上一句：skip-grant-tables 保存并且退出
+5 连接数据库
+	mysql -uroot -p  后车后不输入密码
+6 登陆进去后修改密码

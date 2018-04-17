@@ -1,0 +1,46 @@
+composer
+ composer-Setup.exe win系统 需要翻墙
+ composer.phar  win  linux 通用 不需要翻墙
+ composer 分为局部安装和全局安装
+ 
+         先下载composer.pher    路径： https://getcomposer.org/download/ 里面去选自己想要的版本
+ 
+ 
+局部安装：
+         linux： 将composer.pher放到要安装的目录，然后执行  # php composer.pher
+       windows:  将
+         
+全局安装：
+         linux：
+                  1  将composer.pher移动到  /usr/local/bin/ 目录下，并将composer.pher改名为composer
+                  2  进去给他授权 755 ok了
+                                 如果出现 /usr/bin/env: php: 不是目录 这种错就建立一个软连接： ln -s  php执行目录  /usr/local/bin/php
+ 
+         windows：
+                  1： 将composer.pher放到php.exe同级目录
+                  2： 在php.exe同级目录新建一个 composer.bat文件
+                 2： 再将  @php "%~dp0composer.pher" %*   放入composer.bat文件中
+
+
+使用composer
+	1 ：查看当前镜像地址：	
+			composer config -g repo.packagist
+启用中国全量镜像 方法：https://pkg.phpcomposer.com/
+
+镜像用法
+
+有两种方式启用本镜像服务：
+
+系统全局配置： 即将配置信息添加到 Composer 的全局配置文件 config.json 中。见“方法一”
+单个项目配置： 将配置信息添加到某个项目的 composer.json 文件中。见“方法二
+
+建议采用2方法：
+方法二：
+		1 ： 修改当前项目的 composer.json 配置文件
+		2 ： composer config repo.packagist composer https://packagist.phpcomposer.com
+
+
+
+
+
+

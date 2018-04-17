@@ -1,0 +1,137 @@
+先通过pt-query-digest找出要优化的sql语句，再用explain分析出执行计划。然后再想法子优化sql咯
+explain 或 desc 可以分析出sql的执行计划
+
+
+安装pt-query-digest步骤
+[root@root ~]#yum install -y perl-libwww-perl perl-Time-HiRes
+[root@root ~]#wget http://www.percona.com/downloads/percona-toolkit/2.2.4/percona-toolkit-2.2.4.tar.gz
+[root@root ~]#tar zxvf  percona-toolkit-2.2.4.tar.gz
+[root@root ~]#cd percona-toolkit-2.2.4
+[root@root ~]#perl Makefile.PL
+[root@root ~]#make && make install
+#安装完成后创建数据库和表名，然后再
+#创建库
+mysql> create database pt_query_digest;
+//创建表
+[root@root ~]#pt-query-digest --user=tjx --password=Tjx123 --review  h=127.0.0.1,D=pt_query_digest,t=query_review --no-report --create-review-table  /var/run/mysqld/mysqld-slow.log  
+[root@root ~]#pt-query-digest --user=tjx --password=Tjx123 --history h=127.0.0.1,D=pt_query_digest,t=query_review_history --no-report --create-history-table /var/run/mysqld/mysqld-slow.log  
+//将慢查询解析数据输出并存入库
+[root@root ~]#pt-query-digest --user=root --password=12345678 --review  h=127.0.0.1,D=pt_query_digest,t=query_review  /var/lib/mysql/localhost-slow.log
+[root@root ~]#pt-query-digest --user=root --password=12345678 --history h=127.0.0.1,D=pt_query_digest,t=query_review_history  /var/lib/mysql/localhost-slow.log  
+/*
+    参数解释
+        --user=tjx(传送到指定数据的用户)
+        --password=Tjx123(传送到指定数据的用户的密码)
+        --review    将分析的数据存入表
+        --history 
+        h=127.0.0.1(传送到指定远程指定的数据库)
+        D=pt_query_digest（数据库名）
+        t= （表名）
+        --limit=95%  分析多少，默认为95%
+        --since=12h 分析最近12小时内的查询
+        --filter '$event->{fingerprint} =~ m/^select/i' 只分析select的语句慢查询语句
+        --filter '($event->{user} || "") =~ m/^用户名/i'  只分析特定mysql用户
+        --filter '(($event->{Full_scan} || "") eq "yes") ||(($event->{Full_join} || "") eq "yes")'  查询所有所有的全表扫描或full join的慢查询
+        
+        
+*/
+
+(7)把查询保存到query_review表
+pt-query-digest  --user=root –password=abc123 --review  h=localhost,D=test,t=query_review--create-review-table  slow.log
+
+(8)把查询保存到query_history表
+pt-query-digest  --user=root –password=abc123 --review  h=localhost,D=test,t=query_ history--create-review-table  slow.log_20140401
+pt-query-digest  --user=root –password=abc123--review  h=localhost,D=test,t=query_history--create-review-table  slow.log_20140402
+
+(9)通过tcpdump抓取mysql的tcp协议数据，然后再分析
+tcpdump -s 65535 -x -nn -q -tttt -i any -c 1000 port 3306 > mysql.tcp.txt
+pt-query-digest --type tcpdump mysql.tcp.txt> slow_report9.log
+
+(10)分析binlog
+mysqlbinlog mysql-bin.000093 > mysql-bin000093.sql
+pt-query-digest  --type=binlog  mysql-bin000093.sql > slow_report10.log
+
+(11)分析general log
+pt-query-digest  --type=genlog  localhost.log > slow_report11.log
+
+要优化的sql语句
+1 查询次数多切每次占用时间长的sql
+    通常为前分析结果的前几个
+2 IO大的sql
+    注意Rows examine 项
+3 未命中索引的sql
+    注意 Rows examine 和Rows Send的对比
+         Rows examine 远远大于 Rows Send 说明索引命中率较低 
+ 
+
+//解释
+
+# 1.9s user time, 100ms system time, 14.57M rss, 24.56M vsz
+# Current date: Fri Apr 21 15:48:30 2017
+# Hostname: root
+# Files: /var/run/mysqld/mysqld-slow.log
+# Overall: 30 total, 7 unique, 0.00 QPS, 0.00x concurrency _______________
+解释为：本次解析出来的慢查询日志中，共30条，其中7条语句不同其余都是相同的sql语句。将30条记录抽象成7条
+    Overall代表慢查询日志中有多少sql语句   unique，不同的查询
+# Time range: 2017-04-21 10:31:27 to 14:27:43
+    解释为：该慢查询日志从2017-04-21 10:31:27 到 date(Y-m-d H:i:s) 
+# Attribute          total     min     max     avg     95%  stddev  median
+# ============     ======= ======= ======= ======= ======= ======= =======
+# Exec time          180ms   423us    44ms     6ms    24ms    10ms     1ms
+     执行时间为         180ms ，最大时间为423us，最小44ms 。其中95%时间为24ms
+# Lock time           11ms   122us     5ms   356us   384us   812us   144us
+    锁定时间          
+# Rows sent            128       1       7    4.27    4.96    1.34    4.96
+    总共发生的大小
+# Rows examine         139       2       7    4.63    4.96    0.92    4.96
+    扫描的大小          
+# Query size           852      18      36   28.40   34.95    5.05   24.84
+    需要的扫描的大小
+
+//Rows examine 远远大于 Rows sent   时代表扫描的范围远远大于需要的行数，说明该服务器索引并不是很好
+
+
+
+# Rank Query ID           Response time Calls R/Call V/M   Item itme代表操作 类型
+# ==== ================== ============= ===== ====== ===== ===========列出了那些表查询次数，占用时间最多的
+#    1 0x5BFEE8ED0B3555FB  0.0875 48.6%     8 0.0109  0.01 INSERT query_review_history
+#    2 0x9FFF42701C258CD9  0.0440 24.5%     1 0.0440  0.00 SELECT jobs
+#    3 0x9D8369A0A6BCDCC4  0.0203 11.3%     1 0.0203  0.00 SELECT migrations
+#    4 0x3D8C074C26D05CD7  0.0170  9.4%    15 0.0011  0.00 SELECT query_review
+#    5 0xAC4262B5AF150CB5  0.0069  3.9%     1 0.0069  0.00 SELECT user
+# MISC 0xMISC              0.0041  2.3%     4 0.0010   0.0 <2 ITEMS>
+
+
+//Query 1
+# Query 1: 0.00 QPS, 0.00x concurrency, ID 0x5BFEE8ED0B3555FB at byte 5461
+# Scores: V/M = 0.01
+# Time range: 2017-04-21 13:15:27 to 14:27:43
+# Attribute    pct   total     min     max     avg     95%  stddev  median
+              百分比   次数     最小   最大    评价
+# ============ === ======= ======= ======= ======= ======= ======= =======
+# Count         26       8
+# Exec time     48    87ms     2ms    33ms    11ms    33ms    11ms     7ms
+    查询时间   
+# Lock time     53     6ms   126us     5ms   721us     5ms     1ms   125us
+# Rows sent     32      41       4       7    5.12    6.98    0.80    4.96
+# Rows examine  29      41       4       7    5.12    6.98    0.80    4.96
+# Query size    31     272      34      34      34      34       0      34
+# String:
+# Databases    pt_query_digest
+    查询的库  
+# Hosts        localhost
+# Users        tjx
+# Query_time distribution
+#   1us
+#  10us
+# 100us
+#   1ms  ################################################################
+#  10ms  ######################################
+# 100ms
+#    1s
+#  10s+
+# Tables
+#    SHOW TABLE STATUS FROM `pt_query_digest` LIKE 'query_review_history'\G
+#    SHOW CREATE TABLE `pt_query_digest`.`query_review_history`\G
+# EXPLAIN /*!50100 PARTITIONS*/
+select * from query_review_history\G  //查询的具体内容

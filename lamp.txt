@@ -1,0 +1,334 @@
+[root@root php-7.1.2]# yum install gcc gcc++ libxml2-devel  libxml2 libpng libpng-devel cmake make gcc-c++ ncurses-devel perl-Data-Dumper boost boost-doc boost-devel mysql-service
+[root@root php-7.1.2]# yum install curl-devel expat-devel mysql-devel gettext-devel openssl-devel zlib-devel  git依赖扩展
+[root@root php-7.1.2]# yum install perl-ExtUtils-MakeMaker					  git依赖扩展
+
+Nginx+PHP开启报错功能
+    1： 到php.ini文件将 display_errors = Off 改为 display_errors = On
+    2： 到/usr/local/php.7.1.2/etc/php-fpm.d/www.conf文件 将 php_flag[display_errors] = off 改为 php_flag[display_errors] = On
+php 添加  opcache扩展能提升PHP性能
+================
+php安装
+	--enable-calendar   	日期扩展
+	--with-gd=[DIR]   	gd库扩展
+	--enable-mbstring   	 mb_  函数激活
+	--with-curl[=DIR]	curl扩展
+	--enable-sockets	socket扩展
+	--enable-fpm		FastCGI 进程管理器（FPM）
+
+	--with-config-file-path  设置php.ini存在的目录可以不设置
+	
+	--with-openssl
+
+[root@root php-7.1.2]# ./configure  --prefix=/usr/local/php.7.1.2 --enable-fpm --enable-sockets --enable-mbstring --enable-calendar --with-config-file-path=/usr/local/php.7.1.2/lib 
+[root@root php-7.1.2]# make && make install
+将源码中 php.ini-* 复制到配置文件。
++++++++++++++++++++++++++++++-
+--with-php-config=/usr/local/php.7.1.2/bin/php-config
+
+./configure  --prefix=/usr/local/php.7.1.2 --enable-fpm --enable-sockets --enable-mbstring --enable-calendar --with-openssl  --with-libXML-dir --with-gd  --with-curl --with-pear   --with-MySQL=/usr/local/mysql --with-mysqli=/usr/local/mysql/bin/mysql_config -with-zlib-dir --without-iconv
+///////////////////////////////////////////////php参数解释
+--prefix=/usr/local/php //指定 php 安装目录 
+--with-apxs2=/usr/local/apache/bin/apxs //整合apache，apxs功能是使用mod_so中的LoadModule指令，加载指定模块到 apache，要求 apache 要打开SO模块
+--with-config-file-path=/usr/local/php/etc //指定php.ini位置
+--with-MySQL=/usr/local/mysql //mysql安装目录，对mysql的支持
+--with-mysqli=/usr/local/mysql/bin/mysql_config //mysqli扩展技术不仅可以调用MySQL的存储过程、处理MySQL事务，而且还可以使访问数据库工作变得更加稳定。 
+--enable-safe-mode 打开安全模式 
+--enable-ftp 打开ftp的支持 
+--enable-zip 打开对zip的支持 
+--with-bz2 打开对bz2文件的支持 
+--with-jpeg-dir 打开对jpeg图片的支持 
+--with-png-dir 打开对png图片的支持 
+--with-freetype-dir 打开对freetype字体库的支持 
+--without-iconv 关闭iconv函数，各种字符集间的转换 
+--with-libXML-dir 打开libxml2库的支持 
+--with-XMLrpc 打开xml-rpc的c语言 
+--with-zlib-dir 打开zlib库的支持 
+--with-gd 打开gd库的支持 
+--enable-gd-native-ttf 支持TrueType字符串函数库 
+--with-curl 打开curl浏览工具的支持 
+--with-curlwrappers 运用curl工具打开url流 
+--with-ttf 打开freetype1.*的支持，可以不加了 
+--with-xsl 打开XSLT 文件支持，扩展了libXML2库 ，需要libxslt软件 
+--with-gettext 打开gnu 的gettext 支持，编码库用到 
+--with-pear 打开pear命令的支持，PHP扩展用的 
+--enable-calendar 打开日历扩展功能 
+--enable-mbstring 多字节，字符串的支持 
+--enable-bcmath 打开图片大小调整,用到zabbix监控的时候用到了这个模块
+--enable-sockets 打开 sockets 支持
+--enable-exif 图片的元数据支持 
+--enable-magic-quotes 魔术引用的支持 
+--disable-rpath 关闭额外的运行库文件 
+--disable-debug 关闭调试模式 
+--with-mime-magic=/usr/share/file/magic.mime 魔术头文件位置
+///////////////////////////////////////////////
+安装ncurses
+
+下载地址：http://www.gnu.org/software/ncurses/
+tar zxvf ncurses-5.8.tar.gz  
+cd ncurses-5.8  
+./configure  
+make  
+make install 
+
+------------------
+
+进入解压后的mysql文件夹。
+
+#cmake  -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_DATADIR=/data/mysql -DWITH_INNOBASE_STORAGE_ENGINE=1 -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci -DWITH_BOOST=/usr/include/boost
+# make && make install
+
+
+-DWITH_BOOST  指定boost安装的目录，不指定安装慢，且yum install boost安装默认超时600秒。
+
+
+
+tar zxvf mysql-5.6.12.tar.gz  
+cd mysql-5.6.12  （以下是一行 这里为了方便大家理解和注释写成换行注释，实际编译中请在换行前 加 " \ "链接）cmake \
+-DCMAKE_INSTALL_PREFIX=/usr/local/mysql \   #安装路径
+-DMYSQL_DATADIR=/usr/local/mysql/data       \    #数据文件存放位置
+-DSYSCONFDIR=/etc              \                                  #my.cnf路径
+-DWITH_MYISAM_STORAGE_ENGINE=1    \       #支持MyIASM引擎
+-DWITH_INNOBASE_STORAGE_ENGINE=1 \     #支持InnoDB引擎
+-DWITH_MEMORY_STORAGE_ENGINE=1 \        #支持Memory引擎
+-DWITH_READLINE=1                    \                         #快捷键功能(我没用过)
+-DMYSQL_UNIX_ADDR=/tmp/mysqld.sock      \   #连接数据库socket路径
+-DMYSQL_TCP_PORT=3306                  \               #端口
+-DENABLED_LOCAL_INFILE=1            \                #允许从本地导入数据
+-DWITH_PARTITION_STORAGE_ENGINE=1  \   #安装支持数据库分区
+-DEXTRA_CHARSETS=all                  \                   #安装所有的字符集
+-DDEFAULT_CHARSET=utf8              \                   #默认字符
+-DDEFAULT_COLLATION=utf8_general_ci
+
+
+mysql 安装后启动发现 ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/tmp/mysql.sock' (2)错误
+1：yum install mysql-server
+2: service mysqld start
+
+
+++++++++++++++++++++++
+git安装配置
+
+	我这里是直接以ROOT方式登录的。如果当前账户不是root账户，请在命令前面加上sudo
+ 若已经安装个git就先卸载掉    #  yum -y remove git
+1.安装Git所需依赖
+# yum install curl-devel expat-devel gettext-devel openssl-devel zlib-devel
+# yum install gcc perl-ExtUtils-MakeMaker
+ 
+ centos6.6 yum install git会安装1.级。所以还是下载安装吧
+2.下载并安装Git2.10.2  git1.几 ， git push时会被拒绝。必须升级
+ 
+# wget https://github.com/git/git/archive/v2.10.2.tar.gz
+# tar -zxvf git-2.10.2.tar.gz
+ 
+ 
+3.编译并安装Git
+# cd git-2.10.2
+# make prefix=/usr/local/git all
+# make prefix=/usr/local/git install
+
+	 ./configru --prefix=路径
+	make && make install
+
+4.将Git加入系统环境变量
+# vi /etc/bashrc
+将下面代码加入文件最后一行：
+export PATH=$PATH:/usr/local/git/bin
+保存并source一下
+#source /etc/bashrc
+ 
+5.检查是否安装成功
+# git --version
+ 
+
+ 
+ 
+这样Git最新版就安装成功！
+
+安装成功后配置：
+git config --global user.name "你github账户名称"
+git config --global user.email 邮箱
+
+例：
+[root@root download]# git config --global user.name "tjx-github"
+[root@root download]# git config --global user.email 3040662002@qq.com
+push 报错
+ (gnome-ssh-askpass:13543): Gtk-WARNING **: cannot open display:
+(gnome-ssh-askpass:23149): Gtk-WARNING **: cannot open display:
+
+While  git clone ***.git  if get the above error.
+
+run
+解决方法
+#$ unset SSH_ASKPASS
+
+
+------------------
+apache 安装
+
+
+checking for chosen layout... Apache
+checking for working mkdir -p... yes
+checking for grep that handles long lines and -e... /bin/grep
+checking for egrep... /bin/grep -E
+checking build system type... i686-pc-linux-gnu
+checking host system type... i686-pc-linux-gnu
+checking target system type... i686-pc-linux-gnu
+configure: 
+configure: Configuring Apache Portable Runtime library...
+configure: 
+checking for APR... no
+configure: error: APR not found.  Please read the documentation.
+这是apr错误
+
+
+#wget http://mirrors.cnnic.cn/apache//apr/apr-1.5.2.tar.gz
+#wget http://mirrors.cnnic.cn/apache//apr/apr-util-1.5.4.tar.gz
+ 解压后去掉版本号名
+#mv apr apr-util httpd-2.4.23/srclib/
+#wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.40.tar.gz
+#cd pcre-8.40
+# ./configure  --prefix=/usr/local/pcre-8.40
+#make && make install
+[root@root download]# cd httpd-2.4.23
+[root@root httpd-2.4.23]# ./configure  --prefix=/usr/local/apache2.4.23/ -with-pcre=/usr/local/pcre-8.40/bin/pcre-config  -with-included-apr
+
+安装完成后进入安装目录
+[root@root bin]# cd /usr/local/apache2.4.23/bin/
+[root@root bin]# ./apachectl -k start     #启动服务
+
+
+
+开启外部访问
+/sbin/iptables -I INPUT -p tcp --dport 要开放的端口 -j ACCEPT
+例   /sbin/iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+
+/etc/rc.d/init.d/iptables save #保存配置 
+/etc/rc.d/init.d/iptables restart #重启服务 
+/etc/init.d/iptables status  #查看已开放端口
+
+centos7 开放端口号方法 
+	firewall-cmd --zone=public --add-port=80/tcp --permanent
+		命令含义：
+			--zone #作用域
+			--add-port=80/tcp  #添加端口，格式为：端口/通讯协议
+			--permanent  #永久生效，没有此参数重启后失效
+
+-------------
+nginx安装
+# wget http://nginx.org/download/nginx-1.10.3.tar.gz
+解压后进入该目录
+[root@root nginx-1.10.3]# ./configure  --prefix=/usr/local/nginx --with-pcre=../pcre-8.40
+		#--with-pcre 表示要引入一个pcre包。这个是未安装的包【直接下载下来解压后的文件】
+[root@root nginx-1.10.3]# make && make install
+进入安装目录
+杀死httpd进程
+
+[root@root nginx]# ps aux | grep httpd
+root     16255  0.0  0.2   4492  2148 ?        Ss   18:55   0:00 /usr/local/apache2.4.23//bin/httpd -k start
+daemon   16256  0.0  0.2 283248  2340 ?        Sl   18:55   0:02 /usr/local/apache2.4.23//bin/httpd -k start
+daemon   16257  0.1  0.2 283248  2428 ?        Sl   18:55   0:02 /usr/local/apache2.4.23//bin/httpd -k start
+daemon   16258  0.0  0.2 283248  2348 ?        Sl   18:55   0:02 /usr/local/apache2.4.23//bin/httpd -k start
+root     22288  1.0  0.0   6052   780 pts/2    S+   19:37   0:00 grep httpd
+[root@root nginx]# kill -9 16255 16256 16257 16258 22288
+杀死进程后启动nginx
+[root@root nginx]# cd /usr/local/nginx/sbin/
+[root@root sbin]# ./nginx  #启动
+ 
+
+
+浏览器访问看见
+Welcome to nginx!
+
+If you see this page, the nginx web server is successfully installed and working. Further configuration is required.
+
+For online documentation and support please refer to nginx.org.
+Commercial support is available at nginx.com.
+
+Thank you for using nginx.
+代表nginx搞定
+
+进入php安装目录找到php-fpm进程管理器
+[root@root sbin]# cd /usr/local/php-7-1-2/sbin/		nginx配置php
+[root@root sbin]# ./php-fpm 		#启动php-fpm
+	[05-Mar-2017 19:55:01] ERROR: failed to open configuration file '/usr/local/php-7-1-2/etc/php-fpm.conf': No such file or directory (2)
+	[05-Mar-2017 19:55:01] ERROR: failed to load configuration file '/usr/local/php-7-1-2/etc/php-fpm.conf'
+	[05-Mar-2017 19:55:01] ERROR: FPM initialization failed
+[root@root sbin]# cd /usr/local/php-7-1-2/etc/
+[root@root etc]# ls
+pear.conf  php-fpm.conf.default  php-fpm.d
+将php-fpm.conf.default改名为php-fpm.conf
+[root@root etc]# mv php-fpm.conf.default php-fpm.conf
+再次在php-fpm 启动
+root@root sbin]# ls
+php-fpm
+[root@root sbin]# ./php-fpm 
+	[05-Mar-2017 19:59:13] WARNING: Nothing matches the include pattern '/usr/local/php-7-1-2/etc/php-fpm.d/*.conf' from /usr/local/php-7-1-2/etc/php-fpm.conf at 	line 125.
+	[05-Mar-2017 19:59:13] ERROR: No pool defined. at least one pool section must be specified in config file
+	[05-Mar-2017 19:59:13] ERROR: failed to post process the configuration
+	[05-Mar-2017 19:59:13] ERROR: FPM initialization failed
+
+[root@root sbin]# cd /usr/local/php-7-1-2/etc/php-fpm.d/
+[root@root php-fpm.d]# ls
+www.conf.default
+[root@root php-fpm.d]# mv www.conf.default  www.conf
+
+再次去启动php-fpm
+[root@root sbin]# ./php-fpm 
+[root@root sbin]# ps aux | grep php-fpm   到此说明php-fpm启动成功
+root     22387  0.0  0.1  20548  1984 ?        Ss   20:02   0:00 php-fpm: master process (/usr/local/php-7-1-2/etc/php-fpm.conf)
+nobody   22388  0.0  0.1  20548  1668 ?        S    20:02   0:00 php-fpm: pool www
+nobody   22389  0.0  0.1  20548  1668 ?        S    20:02   0:00 php-fpm: pool www
+root     22403  0.0  0.0   6052   800 pts/2    S+   20:06   0:00 grep php-fpm
+
+php-fpm  的作用是nginx会将.php的交给php解析。
+配置nginx
+到安装目录/conf
+[root@root sbin]# cd /usr/local/nginx/conf/
+配置 php-fpm.conf  , 配置 nginx.conf
+在php-fpm.conf 最行  include=/usr/local/php-7-1-2/etc/php-fpm.d/*.conf
+
+发现 www.conf 配置文件在/usr/local/php-7-1-2/etc/php-fpm.d/  目录中
+
+
+
+[root@root php-fpm.d]# sudo vim www.conf
+
+重启
+[root@root php-fpm.d]# ps aux | grep php-fpm
+root     22387  0.0  0.1  20548  1984 ?        Ss   20:02   0:01 php-fpm: master process (/usr/local/php-7-1-2/etc/php-fpm.conf)
+nobody   22388  0.0  0.2  20612  2304 ?        S    20:02   0:00 php-fpm: pool www
+nobody   22389  0.0  0.2  20612  2304 ?        S    20:02   0:00 php-fpm: pool www
+root     23073  0.0  0.0   6052   780 pts/4    S+   22:28   0:00 grep php-fpm
+[root@root php-fpm.d]# kill -USR2 22387
+
+
+重起   #/usr/local/nginx/sbin/nginx -s reload
+
+
+# make clean  //清除上一次make产生的信息
+  make distclean 清除所有的make产生的信息
+
+
+追加扩展方法
+http://php.net/manual/zh/install.pecl.php-config.php
+
+例如追加openssl扩展  http://www.cnblogs.com/doseoer/p/4367536.html
+	
+LINUX下PHP编译添加相应的动态扩展模块so（不需要重新编译PHP，以openssl.so为例）
+
+--with-php-config 
+  --with-openssl=DIR  
+
+
+./configure --with-php-config=/usr/local/php/bin/php-config --with-png-dir --with-freetype-dir --with-jpeg-dir --with-gd
+
+
+
+
+linux update
+
+liunxupdate
+
+
+1222
+ 
