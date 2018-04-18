@@ -3,7 +3,7 @@ centos
 
 *fd*   ----》自定义 代表file  和dir
 
-===========命令==============
+===========命令================
 命令解释		windows			liunx
 关机                                            halt
 查看ip			ipconfig		ifconfig
